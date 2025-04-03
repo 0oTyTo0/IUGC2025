@@ -221,7 +221,7 @@ class model:
             heatmaps = self.model(image)  # (1, 3, 64, 64)
             
             # Extract coordinates from heatmaps (1, 6)
-            coords = extract_coordinates(heatmaps) 
+            coords = extract_coordinates(heatmaps) #if you don't use other methods instead of heatmap ,it is unnecessary.
 
         # Convert to numpy array (6,)
         coords = coords.squeeze(0).detach().numpy()
