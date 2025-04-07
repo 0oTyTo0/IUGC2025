@@ -67,7 +67,7 @@ class HeatmapLandmarkDataset(Dataset):
         # Extract landmark coordinates and normalize
         ps1 = ast.literal_eval(row["PS1"])
         ps2 = ast.literal_eval(row["PS2"])
-        aop = ast.literal_eval(row["FH1"])  # Using FH1 instead of AOP Tangency
+        aop = ast.literal_eval(row["FH1"]) 
         
         # Original image size (assuming 512x512)
         img_width, img_height = 512, 512
