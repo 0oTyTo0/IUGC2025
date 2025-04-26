@@ -11,37 +11,38 @@ class HeatmapUNet(nn.Module):
         self.heatmap_size = heatmap_size
         
         # Encoder part (downsampling path)
-        # Input: [batch_size, 3, 64, 64]
-        self.enc_conv1 = self._double_conv(3, 64)     # -> [batch_size, 64, 64, 64]
-        self.pool1 = nn.MaxPool2d(kernel_size=2)      # -> [batch_size, 64, 32, 32]
+        # Input: [batch_size, 3, 512, 512]
+        self.enc_conv1 = self._double_conv(3, 64)     # -> [batch_size, 64, 512, 512]
+        self.pool1 = nn.MaxPool2d(kernel_size=2)      # -> [batch_size, 64, 256, 256]
         
-        self.enc_conv2 = self._double_conv(64, 128)   # -> [batch_size, 128, 32, 32]
-        self.pool2 = nn.MaxPool2d(kernel_size=2)      # -> [batch_size, 128, 16, 16]
+        self.enc_conv2 = self._double_conv(64, 128)   # -> [batch_size, 128, 256, 256]
+        self.pool2 = nn.MaxPool2d(kernel_size=2)      # -> [batch_size, 128, 128, 128]
         
-        self.enc_conv3 = self._double_conv(128, 256)  # -> [batch_size, 256, 16, 16]
-        self.pool3 = nn.MaxPool2d(kernel_size=2)      # -> [batch_size, 256, 8, 8]
+        self.enc_conv3 = self._double_conv(128, 256)  # -> [batch_size, 256, 128, 128]
+        self.pool3 = nn.MaxPool2d(kernel_size=2)      # -> [batch_size, 256, 64, 64]
         
-        self.enc_conv4 = self._double_conv(256, 512)  # -> [batch_size, 512, 8, 8]
-        self.pool4 = nn.MaxPool2d(kernel_size=2)      # -> [batch_size, 512, 4, 4]
+        self.enc_conv4 = self._double_conv(256, 512)  # -> [batch_size, 512, 64, 64]
+        self.pool4 = nn.MaxPool2d(kernel_size=2)      # -> [batch_size, 512, 32, 32]
         
         # Bottleneck part
-        self.bottleneck = self._double_conv(512, 1024) # -> [batch_size, 1024, 4, 4]
+        self.bottleneck = self._double_conv(512, 1024) # -> [batch_size, 1024, 32, 32]
         
         # Decoder part (upsampling path)
-        self.upconv4 = nn.ConvTranspose2d(1024, 512, kernel_size=2, stride=2) # -> [batch_size, 512, 8, 8]
+        self.upconv4 = nn.ConvTranspose2d(1024, 512, kernel_size=2, stride=2) # -> [batch_size, 512, 64, 64]
         self.dec_conv4 = self._double_conv(1024, 512)  # 512 + 512 = 1024 (skip connection)
         
-        self.upconv3 = nn.ConvTranspose2d(512, 256, kernel_size=2, stride=2) # -> [batch_size, 256, 16, 16]
+        self.upconv3 = nn.ConvTranspose2d(512, 256, kernel_size=2, stride=2) # -> [batch_size, 256, 128, 128]
         self.dec_conv3 = self._double_conv(512, 256)   # 256 + 256 = 512 (skip connection)
         
-        self.upconv2 = nn.ConvTranspose2d(256, 128, kernel_size=2, stride=2) # -> [batch_size, 128, 32, 32]
+        self.upconv2 = nn.ConvTranspose2d(256, 128, kernel_size=2, stride=2) # -> [batch_size, 128, 256, 256]
         self.dec_conv2 = self._double_conv(256, 128)   # 128 + 128 = 256 (skip connection)
         
-        self.upconv1 = nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2) # -> [batch_size, 64, 64, 64]
+        self.upconv1 = nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2) # -> [batch_size, 64, 512, 512]
         self.dec_conv1 = self._double_conv(128, 64)    # 64 + 64 = 128 (skip connection)
         
         # Final output layer - generate one heatmap channel for each keypoint
-        self.final_layer = nn.Conv2d(64, num_keypoints, kernel_size=1) # -> [batch_size, num_keypoints, 64, 64]
+        self.final_layer = nn.Conv2d(64, num_keypoints, kernel_size=1) # -> [batch_size, num_keypoints, 512, 512]
+                                                                       # Finally resized to [batch_size, num_keypoints, 64, 64]
     
     def _double_conv(self, in_channels, out_channels):
         """Two consecutive convolutional layers, each followed by batch normalization and ReLU activation"""
@@ -89,12 +90,12 @@ class HeatmapUNet(nn.Module):
         d1 = self.dec_conv1(d1)
         
         # Final layer output heatmaps
-        heatmaps = self.final_layer(d1)
+        heatmaps = self.final_layer(d1)  # [batch_size, num_keypoints, 512, 512]
         
         # Ensure output size matches target heatmap size
         if heatmaps.size(2) != self.heatmap_size or heatmaps.size(3) != self.heatmap_size:
             heatmaps = F.interpolate(heatmaps, size=(self.heatmap_size, self.heatmap_size), 
-                                     mode='bilinear', align_corners=True)
+                                     mode='bilinear', align_corners=True)  # -> [batch_size, num_keypoints, 64, 64]
         
         return heatmaps
 
