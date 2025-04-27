@@ -13,4 +13,15 @@ Your submission should maintain the following structure:
 2. Ensure your model.py contains all necessary functions for model loading and inference
 3. Replace the empty model.pth with your actual trained model weights
 
+# IMPORTANT: Input and Output Specification
+# ----------------------------------------
+# Input (X):   
+#   - A PIL.Image object (from PIL.Image.open)
+#   - Represents an RGB image 
+# 
+# Output (coords):
+#   - A numpy array of shape (6,) containing 3 keypoint coordinates
+#   - Format: [x1, y1, x2, y2, x3, y3]
+#   - Coordinates must be in the pixel space of the original input image（512*512 here）
+#   - The coordinates should represent the exact locations of the detected keypoints
 Thank you for following the submission guidelines!
