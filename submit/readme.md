@@ -26,4 +26,4 @@ Your submission should maintain the following structure:
    - The coordinates should represent the exact locations of the detected keypoints
 Thank you for following the submission guidelines!
 
-## you need to define a class named model, which defines predict and load functions. The codabench will automatically call these functions to get results.
+## you need to define a class named "model", which defines "predict" and "load" functions. The codabench will automatically call these functions to get results.
