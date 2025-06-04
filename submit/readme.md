@@ -13,10 +13,11 @@ Your submission should maintain the following structure:
 2. Ensure your model.py contains all necessary functions for model loading and inference
 3. Replace the empty model.pth with your actual trained model weights
 submit a zip in the coadbench platform.
+
 xxxx.zip/  
-├── metadata 
-└── model.py
-└── xxx.pth
+  ── metadata 
+  ── model.py
+  ── xxx.pth
 
 ## IMPORTANT: Input and Output Specification
  ----------------------------------------
